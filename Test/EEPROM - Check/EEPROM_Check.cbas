@@ -1,0 +1,57 @@
+'*******************************************************************************
+'Projektname:       EEPROM_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          EEPROM_Check.cbas
+'Autor:             UlliS
+'Datum:             27.03.2008
+'
+'Funktion:          Dieses Beispiel zeigt wie Fließkommazahlen im externen
+'                   EEPROM gespeichert werden können.
+'                   EEPROM: 64K (8K x 8)
+'                   Es werden erst Daten in das EEPROM geschrieben und danach
+'                   wieder ausgelesen und am Ausgabefenster angezeigt.
+'
+'*******************************************************************************
+
+#define LF 0x0A
+#define CR 0x0D
+#define SPACE 0x20
+
+Dim Zahlf As Single
+Dim EE_Adr As Word
+Dim EE_Byte As Byte
+
+
+'Mainprogramm
+Sub main()
+
+    'I2C Bit rate: 100 kHz
+    I2C_Init(I2C_100kHz)
+
+    Zahlf = 0.0
+    EE_Adr = 0
+
+
+    'Write external EERPOM
+     Do
+         WriteFloat_24C64(EE_Adr, Zahlf)
+         EE_Adr = EE_Adr + 3
+         Msg_WriteFloat(Zahlf)
+         Msg_WriteChar(SPACE)
+         Zahlf = Zahlf + 2.15
+     Loop While Zahlf <= 10.0
+
+     'Delimiter
+     Msg_WriteChar(0x3D)     '" = "
+     EE_Adr = 0
+
+     'Read external EEPROM
+     Do
+        Zahlf = ReadFloat_24C64(EE_Adr)
+        Msg_WriteFloat(Zahlf)
+        Msg_WriteChar(SPACE)
+        EE_Adr = EE_Adr + 3
+     Loop While EE_Adr <= 54
+
+
+End Sub

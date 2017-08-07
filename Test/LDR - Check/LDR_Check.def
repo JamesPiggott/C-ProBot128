@@ -1,0 +1,3 @@
+.equ  Text                                      40    
+.equ  LDR_Left                                  42    
+.equ  LDR_Right                                 44    

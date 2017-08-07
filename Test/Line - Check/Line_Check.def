@@ -1,0 +1,3 @@
+.equ  Text                                      40    
+.equ  Line_Left                                 42    
+.equ  Line_Right                                44    

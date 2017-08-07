@@ -1,0 +1,3 @@
+.equ  Text                                      40    
+.equ  Encoder_left                              42    
+.equ  Encoder_right                             44    

@@ -1,0 +1,76 @@
+'*******************************************************************************
+'Projektname:       Radencoder_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          RadencoderCheck.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Radencoder Test
+'                   Laden Sie das Programm in den Roboter und starten Sie
+'                   dieses mit der Taste F10 oder den kleinen Blitz in der
+'                   Menüzeile. Schieben Sie den Robby auf einer glatten sauberen
+'                   Oberfläche (Tisch) ein paar cm nach vorne. Die Zählimpule
+'                   im Ausgabefenster, müssen sich gleichmässig erhöhen.
+'                   Sollte das nicht der Fall sein, müssen Sie die Encoder
+'                   (siehe Anleitung) leicht nachjustieren.
+'                   Wichtig: Die Räder müssen guten Kontakt zum Boden besitzen
+'                   und es muss gleichmäßig gerade nach vorne geschoben werden!
+'
+'*******************************************************************************
+
+#define Encoder_IR 8
+
+Dim Text(40) As Char
+Dim Encoder_left As Integer
+Dim Encoder_right As Integer
+
+
+'Mainprogramm
+Sub main()
+
+    SPI_Disable()                       'SPI "OFF"
+    Port_DataDirBit(Encoder_IR,1)       'Port For IR LED = Output
+    Port_WriteBit(Encoder_IR,PORT_OFF)  'IR Diode PORT_OFF = IR "Ein"
+
+    'Radencoder Interrupts
+    Irq_SetVect(INT_6,Ext_ISR_R)        'Interrupt Service Routine right encoder
+    Irq_SetVect(INT_7,Ext_ISR_L)        'Interrupt Service Routine left encoder
+
+    Ext_IntEnable(6,2)                  'Interrupt right falling edge
+    Ext_IntEnable(7,2)                  'Interrupt left  falling edge
+
+
+    Do While True
+
+       Msg_WriteInt(Encoder_left)
+       Text = " left"
+       Msg_WriteText(Text)
+       Msg_WriteChar(13)
+
+       Msg_WriteInt(Encoder_right)
+       Text = " right"
+       Msg_WriteText(Text)
+       Msg_WriteChar(10)
+       Msg_WriteChar(13)
+
+       AbsDelay(100)
+
+    End While
+
+End Sub
+
+
+'Interrupt Service Routine "Encoder right"
+Sub Ext_ISR_R()
+    Dim irqreq As Integer
+    irqreq = Irq_GetCount(INT_6)        'Interrupt Request Counter = 0
+    Encoder_right = Encoder_right + 1
+End Sub
+
+
+'Interrupt Service Routine "Encoder left"
+Sub Ext_ISR_L()
+    Dim irqreq As Integer
+    irqreq = Irq_GetCount(INT_7)        'Interrupt Request Counter = 0
+    Encoder_left = Encoder_left + 1
+End Sub

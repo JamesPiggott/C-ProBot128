@@ -1,0 +1,63 @@
+'*******************************************************************************
+'Projektname:       MIC_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          MIC_Check.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Hier testen wir den Schallsensor des PRO-BOTs.
+'                   Der auskommentierte Code(1) dient dazu, den
+'                   Schallpegel im Raum zu messen.
+'                   Mit (2) können wir einen "Klatsch" Test machen.
+'                   Dazu muss der (1) Code wieder auskommentiert werden!
+'                   Es darf immer nur ein Teil des Codes aktiv sein!
+'                   Und das Kompilieren nicht vergessen (F9)!
+'                   Klatschen wird nach dem erfolgreichen Übertragen des
+'                   Programms und des Startens mit F10 in unsere Hände,
+'                   Wird ein Text im Ausgabefenster ausgegeben.
+'
+'*******************************************************************************
+
+Dim Text(40) As Char
+Dim Count As Integer
+Dim MIC_Level As Word
+
+
+'Mainprogramm
+Sub main()
+
+    Do While 1                           'Infinite Loop
+
+        MIC_Level = GetAdc(3)            'Read soundlevel
+
+
+        '(1)
+        'Msg_WriteWord(MIC_Level)        'Write the ADC raw value over RS232
+        'Text = " Level"
+        'Msg_WriteText(Text)
+        'Msg_WriteChar(13)
+
+
+        '(2)
+        If MIC_Level > 650 Then          'If the Soundlevel larger As 650 Then
+           Count = Count + 1             'Send a message over RS232. (Clapping)
+           Text = "Ups..."
+           Msg_WriteText(Text)
+           Msg_WriteInt(Count)
+           Msg_WriteChar(13)             'CR
+           AbsDelay(100)                 'Wait 100ms!
+        End If
+
+        'AbsDelay(100)                   'Wait only For Test (1)
+
+    End While
+
+End Sub
+
+
+'Read ADC with GetAdc(channel number)
+Sub GetAdc(Channel As Byte) As Word
+    'Uref 2,56V internal reference voltage
+    ADC_Set(ADC_VREF_BG,Channel)
+    Return ADC_Read()
+End Sub

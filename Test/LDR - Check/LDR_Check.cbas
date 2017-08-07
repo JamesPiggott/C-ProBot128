@@ -1,0 +1,56 @@
+'*******************************************************************************
+'Projektname:       LDR_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          LDR_Check.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Auslesen der Lichtsensoren.
+'                   Starten Sie das Programm über Programm starten (F10).
+'                   Im Ausgabefenster werden die ADC Werte angezeigt.
+'                   Verdunkeln Sie die linke Seite des Lichtsuchers (LDR)
+'                   wird sich der ADC Wert für den linken Sensor erhöhen.
+'                   Verdunkeln Sie den rechten Sensor, wird dieser Wert sich
+'                   erhöhen.
+'
+'*******************************************************************************
+
+Dim Text(40) As Char
+Dim LDR_Left As Word
+Dim LDR_Right As Word
+
+
+'Mainprogramm
+Sub main()
+
+    Port_DataDir(5,0)               'Port = Input
+
+    Do While 1                      'Infinite Loop
+
+        LDR_Left = GetAdc(4)        'Read LDR left
+        LDR_Right = GetAdc(5)       'Read LDR right
+
+        Msg_WriteWord(LDR_Left)     'Write left value over RS232
+        Text = " LDR_Left"
+        Msg_WriteText(Text)
+        Msg_WriteChar(13)           'CR
+
+        Msg_WriteWord(LDR_Right)    'Write right value over RS232
+        Text = " LDR_Right"
+        Msg_WriteText(Text)
+        Msg_WriteChar(10)           'LF
+        Msg_WriteChar(13)           'CR
+
+        AbsDelay(1000)              'Speep 1sec.
+
+    End While
+
+End Sub
+
+
+'Read Adc with GetAdc(channel number)
+Sub GetAdc(Channel As Byte) As Word
+    'Uref 2,56V internal reference voltage
+    ADC_Set(ADC_VREF_BG,Channel)
+    Return ADC_Read()
+End Sub

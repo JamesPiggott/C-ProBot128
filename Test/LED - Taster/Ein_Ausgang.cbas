@@ -1,0 +1,89 @@
+'*******************************************************************************
+'Projektname:       Ein_Ausgang.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          Ein_Ausgang.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Alle LEDs werden zuerst eingeschaltet, und gehen danach
+'                   in ein Lauflicht über. Mit drücken des Tasters SW2 (Boot)
+'                   kann dieser Vorgang unterbrochen werden
+'                   Die Line LED leuchtet immer!
+'
+'*******************************************************************************
+
+'FLL = Front LED Left
+'FLR = Front LED Right
+'BLL = Back LED Left
+'BLR = Back LED Right
+
+#define FLL 19
+#define FLR 18
+#define BLL 17
+#define BLR 16
+#define LineLED 20
+#define Button 36
+
+Dim Stop As Byte
+
+'Mainprogramm
+Sub main()
+
+    Port_DataDirBit(Button,0)                           'Port = Input
+    Port_WriteBit(Button,1)                             'Pullup ON
+
+    Irq_SetVect(INT_4,Button_Press)                     'On INT_4 jump To Button_Press
+    Ext_IntEnable(4,2)                                  'IRQ on falling edge
+    Stop = 0                                            'Stop = 0 break
+
+    Port_DataDirBit(FLL,PORT_OUT)                       'Port PC.0 = Output
+    Port_DataDirBit(FLR,PORT_OUT)                       'Port PC.1 = Output
+    Port_DataDirBit(BLL,PORT_OUT)                       'Port PC.2 = Output
+    Port_DataDirBit(BLR,PORT_OUT)                       'Port PC.3 = Output
+    Port_DataDirBit(LineLED,PORT_OUT)                   'Port PC.4 = Output
+
+    Port_Write(2,&H0)                                   'All Status LEDs "ON" And Line LED "ON"
+    AbsDelay(1000)                                      'Wait 1000ms
+    Port_Write(2,&H1F)                                  'All Status LEDs "OFF" And Line LED "OFF"
+    AbsDelay(1000)                                      'Wait 1000ms
+    Port_Write(2,&H0)                                   'All Status LEDs "ON" And Line LED "ON"
+    AbsDelay(1000)                                      'Wait 1000ms
+
+
+    Do While (1)                                        'Infinite Loop
+
+        AbsDelay(250)
+        Port_WriteBit(FLL,PORT_OFF)                     'Front LED left "ON"
+        AbsDelay(250)                                   'Wait250ms
+        Port_WriteBit(FLR,PORT_OFF)                     'Front LED right "ON"
+        AbsDelay(250)                                   'Wait 250ms
+        Port_WriteBit(BLR,PORT_OFF)                     'Back LED right "ON"
+        AbsDelay(250)                                   'Wait 250ms
+        Port_WriteBit(BLL,PORT_OFF)                     'Back LED left "ON"
+        AbsDelay(250)                                   'Wait 250ms
+
+        Port_WriteBit(FLL,PORT_ON)                      'Front LED left "OFF"
+        AbsDelay(250)                                   'Wait 250ms
+        Port_WriteBit(FLR,PORT_ON)                      'Front LED right "OFF"
+        AbsDelay(250)                                   'Wait 250ms
+        Port_WriteBit(BLR,PORT_ON)                      'Back LED right "OFF"
+        AbsDelay(250)                                   'Wait 250ms
+        Port_WriteBit(BLL,PORT_ON)                      'Back LED left "OFF"
+
+        If Stop = 1 Then                                'Button SW2 press?
+           Port_Write(2,&H1F)                           'Yes Then Satus LEDs "OFF" And Line LED "OFF"
+           Exit                                         'Do While End, Programm End
+        End If
+
+    End While
+
+End Sub
+
+
+Sub Button_Press()                                      'ISR (Interrupt Service Routine)
+  Stop = 1                                              'Variable change
+  Irq_GetCount(INT_4)                                   'Clear interrupt flag
+End Sub
+
+
+

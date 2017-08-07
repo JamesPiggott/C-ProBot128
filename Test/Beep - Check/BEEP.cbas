@@ -1,0 +1,86 @@
+'*******************************************************************************
+'Projektname:       Beep.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          BEEP.cbas
+'Autor:             UlliS
+'Datum:             25.03.2008
+'
+'Funktion:          PRO-BOT128 spielt eine Melody ab.
+'                   Port PB.4 = OC0 / Timer0
+'
+'*******************************************************************************
+
+'Attention: Tonepitch tolerance is ~ +/- 2Hz
+'Achtung die Abweichung des Tones beträgt etwa +/- 2Hz
+
+' Command:
+' Beep(pitch,lenght)
+' lenght As ms
+
+
+'1. Oktave
+#define Tone_C1 440     '261Hz
+#define Tone_Cis1 413   '277Hz
+#define Tone_D1 392     '293Hz
+#define Tone_Dis1 371   '311Hz
+#define Tone_E1 350     '329Hz
+#define Tone_F1 330     '349Hz
+#define Tone_Fis1 312   '369Hz
+#define Tone_G1 294     '392Hz
+#define Tone_Gis1 277   '415Hz
+#define Tone_A1 262     '440Hz
+#define Tone_Ais1 247   '466Hz
+#define Tone_H1 234     '493Hz
+
+'2. Oktave
+#define Tone_C2 220     '523Hz
+#define Tone_Cis2 208   '554Hz
+#define Tone_D2 196     '587Hz
+#define Tone_Dis2 185   '622Hz
+#define Tone_E2 175     '659Hz
+#define Tone_F2 165     '698Hz
+#define Tone_Fis2 156   '739Hz
+#define Tone_G2 147     '784Hz
+#define Tone_Gis2 138   '830Hz
+#define Tone_A2 131     '880Hz
+#define Tone_Ais2 125   '932Hz
+#define Tone_H2 117     '987Hz
+
+
+'Mainprogramm
+Sub main()
+
+    Quit_Beep()
+
+End Sub
+
+'Sound Programm
+Sub Quit_Beep()
+
+    Dim X As Integer
+    For X = 1 To 3
+
+         BEEP(Tone_F1,250)
+         BEEP(Tone_G1,200)
+         BEEP(Tone_F1,250)
+         Timer_T0Stop()
+         AbsDelay(500)
+
+         BEEP(Tone_F2,250)
+         BEEP(Tone_G2,200)
+         BEEP(Tone_F2,250)
+         Timer_T0Stop()
+         AbsDelay(500)
+    Next
+
+End Sub
+
+'Make Sound
+Sub BEEP(Tone As Word, Periode As Word)
+    Tone = Tone - 100 'Speaker offset
+    Timer_T0FRQ(Tone,PS_64)
+    AbsDelay(Periode)
+End Sub
+
+
+

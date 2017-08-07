@@ -1,0 +1,53 @@
+'*******************************************************************************
+'Projektname:       Batterie_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          Batterie_Check.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Akku Spannung auslesen.
+'                   Starten Sie das Programm über Programm starten (F10).
+'                   Am Ausgabefenster wird die aktuelle Akku Spannung
+'                   ausgegeben. Die Angabe kann jedoch durch Bauteiletolleranzen
+'                   abweichen. Die Angezeigt Spannung kann mit den Multiplikator
+'                   (Volt * 2.08) abgeglichen werden.
+'
+'*******************************************************************************
+
+Dim Text(9) As Char
+Dim Volt As Single
+
+'Mainprogramm
+Sub main()
+
+
+    Do While 1                      'Infinite Loop
+
+        Batterie_Check()            'Read voltage
+        Msg_WriteFloat(Volt)        'Write Variable
+        Text = " Volt"              'Signifier
+        Msg_WriteText(Text)         'Write signifier
+        Msg_WriteChar(13)           'New line
+        AbsDelay(1000)              '1 sec. sleep
+
+    End While
+
+End Sub
+
+
+Sub Batterie_Check()
+    Dim ADC_RAW As Word             'ADC raw variable 0 To 1023
+    Dim Ref As Single               'Variabel Ref.
+    Ref = 2.56/1023.0               'Calulate solution 5mV/Step
+    ADC_RAW = GetAdc(0)             'Read ADC0
+    Volt = ADC_RAW * Ref            'Calculate voltage
+    Volt = Volt * 2.08              'Calculate voltage divider And tolerance (adj. with Multimeter)
+End Sub
+
+
+'Read ADC over GetAdc(channel number)
+Sub GetAdc(Channel As Byte) As Word
+    'Uref 2,56V internal reference voltage
+    ADC_Set(ADC_VREF_BG,Channel)
+    Return ADC_Read()
+End Sub

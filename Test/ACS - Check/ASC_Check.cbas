@@ -1,0 +1,80 @@
+'*******************************************************************************
+'Projektname:       ASC_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          ASC_Check.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Anti Colision System (ACS) test
+'                   Dieser Test überprüft das ACS System.
+'                   Starten Sie das Programm über Programm starten (F10).
+'                   Halten Sie Ihre Hand vor die rechten IR-Dioden, es muss nun
+'                   die Meldung "Obstacle right" im Ausgabefenster erscheinen.
+'                   Halten Sie Ihre Hand vor die linken IR-Dioden, erscheint die
+'                   Meldung "Obstacel left" im Ausgabefenster.
+'                   Sollten das ACS System nicht reagieren, müssen die Werte
+'                   von Timer_T3PWM(45,20,PS_8) geändert werden.
+'
+'                   Timer_T3PWM(45,20,PS_8)
+'                                |  |   |
+'                                V  |   |
+'                           Period  V   |  (35-60)
+'                               Pulse   V          (5-30)
+'                                   Prescaler (Do Not change!)
+'
+'*******************************************************************************
+
+#define PWM_IR 35
+#define IR_left 27
+#define IR_right 29
+#define TSOP 26
+
+Dim Text(40) As Char
+
+
+Sub main()
+
+    Port_DataDirBit(IR_left,PORT_OUT)
+    Port_DataDirBit(IR_right,PORT_OUT)
+    Port_DataDirBit(TSOP,PORT_IN)
+
+    'PWM Calculation (read manual)
+    'Timer_T3PWM(Par1,Par2,PS);
+    'Periode = Par1*PS/FOSC (51*8/14,7456MHz=27,66 µs)  = 36Khz
+    'Pulswidth = Par2*PS/FOSC (25*8/14,7456MHz=13,56 µs) On Time
+
+    'Timer_T3PWM(Word period,Word PW0,Byte PS)   '36Khz 50/50%
+    Timer_T3PWM(45,20,PS_8)
+    AbsDelay(500)
+
+
+    Do While True
+
+        Port_WriteBit(IR_left,PORT_OFF)         'Right IR "ON" / left IR "OFF"
+        Port_WriteBit(IR_right,PORT_ON)
+        AbsDelay(5)
+        If Port_ReadBit(TSOP) = 0 Then          'Obstacle?
+           Text = "Object right"                'Yes -> Text output over RS232
+           Msg_WriteText(Text)
+           Msg_WriteChar(13)
+           AbsDelay(500)
+        End If
+        AbsDelay(100)
+
+
+        Port_WriteBit(IR_left,PORT_ON)          'Left IR "ON" / right IR "OFF"
+        Port_WriteBit(IR_right,PORT_OFF)
+        AbsDelay(5)
+        If Port_ReadBit(TSOP) = 0 Then          'Obstacle?
+           Text = "Object left"                 'Yes -> Text output over RS232
+           Msg_WriteText(Text)
+           Msg_WriteChar(13)
+           AbsDelay(500)
+        End If
+        AbsDelay(100)
+
+    End While
+
+End Sub
+
+

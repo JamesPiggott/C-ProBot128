@@ -1,0 +1,71 @@
+'*******************************************************************************
+'Projektname:       Line_Check.cprj
+'Benötigte Libs´s:  IntFunc_lib.cc
+'Routinen:          Line_Check.cbas
+'Autor:             UlliS
+'Datum:             26.03.2008
+'
+'Funktion:          Test des Linienfolger-Sensors (T1, T2, D1)
+'                   Stellen Sie den Roboter auf einen hellen Untergrund (Papier)
+'                   Starten Sie das Programm mit Programm Start in der IDE oder
+'                   mit F10. Im Ausgabefenster werden die ADC Werte des
+'                   Liniensensors ausgegeben. Beide Werte sollten relativ nahe
+'                   beieinander liegen. Sollten Sie das nicht tun, können die
+'                   Fototransistoren T1, T2 leicht verbogen werden \ | /
+'                   bis die Werte sehr nah beieinander liegen.
+'                   Achten Sie darauf das es bei diesen Test nicht zu hell am
+'                   Arbeitsplatz ist. Wenn Sie nun einen schwarzen Streifen
+'                   Papier unter den beiden Fototransistoren T1, T2 hin und her
+'                   schieben, werden Sie im Ausgabefenster sehen,
+'                   das sich die ADC Werte ändern (Schwarze Linie).
+'
+'*******************************************************************************
+
+#define Line_LED 20
+
+Dim Text(40) As Char
+Dim Line_Left As Word
+Dim Line_Right As Word
+
+'Mainprogramm
+Sub main()
+
+    Port_DataDir(5,0)                   'Port = Input
+
+    Port_DataDirBit(Line_LED,PORT_OUT)  'Port PC.4 = Output
+    Port_WriteBit(Line_LED,PORT_ON)     'Line LED "ON"
+    AbsDelay(1000)                      'Wait 1000ms
+    Port_WriteBit(Line_LED,PORT_OFF)    'Line LED "OFF"
+    AbsDelay(1000)                      'Wait 1000ms
+    Port_WriteBit(Line_LED,PORT_ON)     'Line LED "ON"
+
+
+    Do While 1                          'Infinite Loop
+
+        Line_Left = GetAdc(1)           'Read left Linesensor
+        Line_Right = GetAdc(2)          'Read right Linesensor
+
+        Msg_WriteWord(Line_Left)        'Write left ADC raw value over RS232
+        Text = " Line_Left"
+        Msg_WriteText(Text)
+        Msg_WriteChar(13)               'CR
+
+        Msg_WriteWord(Line_Right)       'Write left ADC raw value over RS232
+        Text = " Line_Right"
+        Msg_WriteText(Text)
+        Msg_WriteChar(10)               'LF
+        Msg_WriteChar(13)               'CR
+
+        AbsDelay(1000)                  'Wait 1000ms
+
+    End While
+
+End Sub
+
+
+'Read the ADC with GetAdc(channel number)
+Sub GetAdc(Channel As Byte) As Word
+    'Uref 2,56V internal reference voltage
+    ADC_Set(ADC_VREF_BG,Channel)
+    Return ADC_Read()
+End Sub
