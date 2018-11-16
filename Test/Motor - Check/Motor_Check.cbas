@@ -1,64 +1,17 @@
-'*******************************************************************************
-'Projektname:       Motor_Check.cprj
-'Benötigte Libs´s:  IntFunc_lib.cc
-'Routinen:          Motor_Check.cbas
-'Autor:             UlliS
-'Datum:             25.03.2008
-'
-'Funktion:          Motor Test des PRO-BOTs.
-'                   Die Motoren werden zuerst in die eine danach in die
-'                   andere Richtung hochgefahren. Wichtig ist, das der Roboter
-'                   dabei nicht mit den Rädern auf den Tisch steht, da er
-'                   dabei evtl. vom Arbeitstisch fallen könnte!
-'                   (Lieber hochheben, oder "aufbocken")
-'*******************************************************************************
-
-    'Timer_T1PWMX(Word period,Word PW0,Word PW1,Byte PS)
-    'Period = Period*PS/FOSC (100*64/14,7456MHz=434 µs)
-
-    'Calculate PWM
-    'Timer_T1PWM(Par1,Par2,Par3,PS);
-    'Period = Par1*PS/FOSC (100*64/14,7456MHz=434 µs)
-    'PulsewidthA = Par2*PS/FOSC (25*64/14,7456MHz=108 µs)
-    'PulsewidthB = Par3*PS/FOSC (50*64/14,7456MHz=217 µs)
-
-    '  <PW>
-    '   ___
-    '  |   |
-    '  |   |
-    ' _|   |__________________
-    '
-    '<---Periodlenght-------->
-
-    'Timer Prescaler = (Oszillatorfrequenz/ps)
-    '(14,7456MHz/ps)
-
-    'Prescaler    Timebase
-    'ps_1    (1)   67,8 ns
-    'ps_8    (2)  542,5 ns
-    'ps_64   (3)   4,34 µs
-    'ps_256  (4)  17,36 µs
-    'ps_1024 (5)   69,4 µs
-
-
 #define Motor_Enable 15
 
-
-'Mainprogramm
 Sub main()
 
     Dim PWM_Counter As Integer
 
-    Timer_T1PWMX(255,128,128,PS_8)                       'Config For Cannel A und B (Timer1)
+    Timer_T1PWMX(255,128,128,PS_8)
 
-    Port_DataDirBit(Motor_Enable,PORT_OUT)               'Port Enable Motor = Output
-    Port_WriteBit(Motor_Enable,1)                        'Port = High +5V
+    Port_DataDirBit(Motor_Enable,PORT_OUT)
+    Port_WriteBit(Motor_Enable,1)
 
-
-        Timer_T1PWA(128)                                 'PWM Channel A = 50/50
-        Timer_T1PWB(128)                                 'PWM Channel B = 50/50
-        AbsDelay(3000)                                   'Wait 3sec
-
+        Timer_T1PWA(128)
+        Timer_T1PWB(128)
+        AbsDelay(3000)
 
         For PWM_Counter = 128 To 255
             Timer_T1PWA(PWM_Counter)
@@ -88,7 +41,6 @@ Sub main()
         Next
         AbsDelay(3000)
 
-        Port_WriteBit(Motor_Enable,0)                    'Port = low 0V
-
+        Port_WriteBit(Motor_Enable,0)
 
 End Sub
